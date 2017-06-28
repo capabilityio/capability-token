@@ -6,11 +6,7 @@ const CapabilityToken = require("../index.js");
 
 test("serializes and parses version 1 token", () =>
     {
-        let token = new CapabilityToken(
-            {
-                body: crypto.randomBytes(64).toString("base64")
-            }
-        );
+        let token = new CapabilityToken();
         expect(CapabilityToken.parse(token.serialize())).toEqual(token);
     }
 );

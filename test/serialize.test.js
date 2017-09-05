@@ -1,6 +1,5 @@
 "use strict";
 
-const clone = require("clone");
 const crypto = require("crypto");
 
 const CapabilityToken = require("../index.js");

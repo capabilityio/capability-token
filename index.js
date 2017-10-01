@@ -8,18 +8,21 @@ const fromUrlSafeBase64 = base64url =>
     let length = base64url.length;
     return `${base64url.replace(/\-/g, "+").replace(/\_/g, "/")}${new Array(5 - (length % 4)).join("=")}`;
 };
-const toUrlSafeBase64 = base64 => base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
-const CapabilityToken = module.exports = function({ version = 1, body = crypto.randomBytes(64).toString("base64") } = {})
+const CapabilityToken = module.exports = function({ version = 1, body = crypto.randomBytes(64) } = {})
 {
-    assert.ok(CapabilityToken.ONLY_BASE64_REGEX.exec(body));
     const self = this;
     self.version = version;
     self.body = body;
+    if (!Buffer.isBuffer(body))
+    {
+        assert.ok(CapabilityToken.BASE64_BASE64URL_REGEX.exec(body));
+        self.body = Buffer.from(self.body, "base64");
+    }
 };
 
 CapabilityToken.BASE64URL_REGEX = new RegExp("(?:[-_A-Za-z0-9]{4})*(?:[-_A-Za-z0-9]{2}|[-_A-Za-z0-9]{3})?");
-CapabilityToken.ONLY_BASE64_REGEX = new RegExp("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
+CapabilityToken.BASE64_BASE64URL_REGEX = new RegExp("^(?:[-_A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[-_A-Za-z0-9]{2,3})?$");
 CapabilityToken.TOKEN_REGEX = new RegExp(`^CPBLTY([0-9]+)-(${CapabilityToken.BASE64URL_REGEX.source})$`);
 
 CapabilityToken.parse = token =>
@@ -37,7 +40,7 @@ CapabilityToken.parse = token =>
             return new CapabilityToken(
                 {
                     version: 1,
-                    body: fromUrlSafeBase64(parsed[2])
+                    body: parsed[2]
                 }
             );
         default:
@@ -45,18 +48,20 @@ CapabilityToken.parse = token =>
     }
 };
 
+CapabilityToken.toUrlSafeBase64 = base64 => base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
 CapabilityToken.prototype.serialize = function()
 {
     const self = this;
     switch (self.version)
     {
         case 1:
-            let valid = CapabilityToken.ONLY_BASE64_REGEX.exec(self.body);
+            let valid = Buffer.isBuffer(self.body);
             if (!valid)
             {
-                throw new Error(`Token body is not base64 encoded.`);
+                throw new Error(`Token body is not Buffer.`);
             }
-            return `CPBLTY${self.version}-${toUrlSafeBase64(self.body)}`;
+            return `CPBLTY${self.version}-${CapabilityToken.toUrlSafeBase64(self.body.toString("base64"))}`;
         default:
             throw new Error(`Unsupported token version ${self.version}`);
     }

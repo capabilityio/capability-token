@@ -65,6 +65,14 @@ console.log(token2.serialize());
 
 const token3 = new CapabilityToken();
 console.log(token3.serialize());
+
+const token4 = new CapabilityToken(
+    {
+        body: crypto.randomBytes(64)
+    }
+);
+
+console.log(token4.serialize());
 ```
 
 ## Documentation
@@ -87,7 +95,7 @@ Parses `token` string and returns a version 1 `CapabilityToken`.
 
   * `config`: _Object_ Configuration.
     * `version`: _Number_ _(Default: 1)_ Version number to use.
-    * `body`: _String_ _(Default: `crypto.randomBytes(64).toString("base64")`)_ Base64 encoded string to use for token body.
+    * `body`: _Buffer|String_ _(Default: `crypto.randomBytes(64)`)_ Buffer or String in base64 or base64url format to use for token body.
   * Return: _CapabilityToken_ Capability token with specified version and body.
 
 Creates a new `CapabilityToken` with the specified `version` and `body`.

@@ -21,6 +21,7 @@ class CapabilityToken
             assert.ok(CapabilityToken.BASE64_BASE64URL_REGEX.exec(body));
             self.body = Buffer.from(self.body, "base64");
         }
+        self.wellKnown = `CPBLTY${self.version}`;
     }
 
     static parse(token)

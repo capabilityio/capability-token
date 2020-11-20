@@ -7,11 +7,11 @@
         "test": "npm run assert-latest-node && jest"
     },
     "scriptvars": {
-        "latest_node": "v13.6.0"
+        "latest_node": "v14.15.1"
     },
     "main": "index.js",
     "devDependencies": {
-        "jest": "24.9.0"
+        "jest": "26.6.3"
     },
     "contributors": [
         "Tristan Slominski <tristan.slominski@gmail.com>"
